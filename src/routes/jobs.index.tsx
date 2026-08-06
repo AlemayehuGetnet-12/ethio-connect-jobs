@@ -14,16 +14,16 @@ import { JobCard } from "@/components/job-card";
 import { categories, cities, jobs } from "@/data/jobs";
 
 type JobSearch = {
-  q?: string;
-  category?: string;
-  city?: string;
-  type?: string;
-  sort?: string;
+  q?: string | undefined;
+  category?: string | undefined;
+  city?: string | undefined;
+  type?: string | undefined;
+  sort?: string | undefined;
 };
 
 const ANY = "any";
 
-export const Route = createFileRoute("/jobs")({
+export const Route = createFileRoute("/jobs/")({
   validateSearch: (search: Record<string, unknown>): JobSearch => ({
     q: typeof search['q'] === "string" ? search['q'] : undefined,
     category: typeof search['category'] === "string" ? search['category'] : undefined,
@@ -55,7 +55,7 @@ function BrowseJobs() {
 
   const setParam = (key: keyof JobSearch, value: string | undefined) =>
     navigate({
-      search: (prev) => ({ ...prev, [key]: value === ANY || value === "" ? undefined : value }),
+      search: (prev: JobSearch) => ({ ...prev, [key]: value === ANY || value === "" ? undefined : value }),
     });
 
   const q = (search.q ?? "").toLowerCase();

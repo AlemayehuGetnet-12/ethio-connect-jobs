@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatSalary, getCompany, getJob } from "@/data/jobs";
+import { formatSalary, getCompany, getJob, type Company, type Job } from "@/data/jobs";
 
 export const Route = createFileRoute("/jobs/$jobId")({
   loader: ({ params }) => {
@@ -46,7 +46,7 @@ export const Route = createFileRoute("/jobs/$jobId")({
 });
 
 function JobDetail() {
-  const { job, company } = Route.useLoaderData();
+  const { job, company } = Route.useLoaderData() as { job: Job; company: Company | undefined };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -90,7 +90,7 @@ function JobDetail() {
 
           <Section title="Requirements">
             <ul className="list-disc space-y-1.5 pl-5">
-              {job.requirements.map((r) => (
+              {job.requirements.map((r: string) => (
                 <li key={r}>{r}</li>
               ))}
             </ul>
@@ -98,7 +98,7 @@ function JobDetail() {
 
           <Section title="Benefits">
             <ul className="list-disc space-y-1.5 pl-5">
-              {job.benefits.map((b) => (
+              {job.benefits.map((b: string) => (
                 <li key={b}>{b}</li>
               ))}
             </ul>
@@ -106,7 +106,7 @@ function JobDetail() {
 
           <Section title="Skills">
             <div className="flex flex-wrap gap-2">
-              {job.skills.map((s) => (
+              {job.skills.map((s: string) => (
                 <Badge key={s} variant="secondary">
                   {s}
                 </Badge>

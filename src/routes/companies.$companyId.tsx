@@ -2,7 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BadgeCheck, Globe, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
-import { companies, jobs } from "@/data/jobs";
+import { companies, jobs, type Company, type Job } from "@/data/jobs";
 
 export const Route = createFileRoute("/companies/$companyId")({
   loader: ({ params }) => {
@@ -38,7 +38,7 @@ export const Route = createFileRoute("/companies/$companyId")({
 });
 
 function CompanyDetail() {
-  const { company, openJobs } = Route.useLoaderData();
+  const { company, openJobs } = Route.useLoaderData() as { company: Company; openJobs: Job[] };
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -77,7 +77,7 @@ function CompanyDetail() {
         Open roles ({openJobs.length})
       </h2>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        {openJobs.map((job) => (
+        {openJobs.map((job: Job) => (
           <JobCard key={job.id} job={job} />
         ))}
       </div>
