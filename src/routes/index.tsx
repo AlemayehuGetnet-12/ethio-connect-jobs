@@ -3,7 +3,9 @@ import { Search, MapPin, BadgeCheck, ArrowRight, Users, Building2, Briefcase } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { JobCard } from "@/components/job-card";
-import { categories, companies, jobs } from "@/data/jobs";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { facetsQuery, jobsQuery } from "@/lib/jobs-queries";
+import type { CategoryFacet, JobWithCompany } from "@/data/jobs";
 import heroImage from "@/assets/hero-professionals.jpg";
 
 export const Route = createFileRoute("/")({
@@ -22,11 +24,30 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: ({ context }) => {
+    context.queryClient.ensureQueryData(jobsQuery({}));
+    context.queryClient.ensureQueryData(facetsQuery());
+  },
   component: Home,
+  errorComponent: ({ error }) => (
+    <div role="alert" className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <h1 className="font-display text-2xl font-semibold">Something went wrong</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+    </div>
+  ),
+  notFoundComponent: () => (
+    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <p className="text-sm text-muted-foreground">Page not found.</p>
+    </div>
+  ),
 });
 
 function Home() {
-  const latest = [...jobs].sort((a, b) => a.postedDaysAgo - b.postedDaysAgo).slice(0, 6);
+  const { data: jobs } = useSuspenseQuery(jobsQuery({}));
+  const { data: facets } = useSuspenseQuery(facetsQuery());
+  const latest = [...jobs]
+    .sort((a: JobWithCompany, b: JobWithCompany) => a.postedDaysAgo - b.postedDaysAgo)
+    .slice(0, 6);
 
   return (
     <div>
@@ -63,7 +84,7 @@ function Home() {
 
             <div className="mt-8 flex gap-8">
               <Stat icon={<Briefcase className="size-4" />} value={`${jobs.length}`} label="Open roles" />
-              <Stat icon={<Building2 className="size-4" />} value={`${companies.length}`} label="Employers" />
+              <Stat icon={<Building2 className="size-4" />} value={`${facets.companyCount}`} label="Employers" />
               <Stat icon={<Users className="size-4" />} value="12K+" label="Job seekers" />
             </div>
           </div>
@@ -91,7 +112,7 @@ function Home() {
           </Link>
         </div>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.slice(0, 8).map((cat) => (
+          {facets.categories.slice(0, 8).map((cat: CategoryFacet) => (
             <Link
               key={cat.slug}
               to="/jobs"
@@ -118,7 +139,7 @@ function Home() {
           </Button>
         </div>
         <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {latest.map((job) => (
+          {latest.map((job: JobWithCompany) => (
             <JobCard key={job.id} job={job} />
           ))}
         </div>
