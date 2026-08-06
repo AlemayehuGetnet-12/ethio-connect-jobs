@@ -3,6 +3,7 @@ import { BadgeCheck, Globe, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
 import { fetchCompanyProfile } from "@/lib/jobs.functions";
+import type { JobWithCompany } from "@/data/jobs";
 
 export const Route = createFileRoute("/companies/$companyId")({
   loader: async ({ params }) => {
@@ -84,7 +85,7 @@ function CompanyDetail() {
 
       <h2 className="mt-10 font-display text-xl font-semibold">Open roles ({openJobs.length})</h2>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        {openJobs.map((job) => (
+        {openJobs.map((job: JobWithCompany) => (
           <JobCard key={job.id} job={job} />
         ))}
       </div>
