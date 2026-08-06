@@ -2,18 +2,21 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { BadgeCheck, Globe, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobCard } from "@/components/job-card";
-import { companies, jobs, type Company, type Job } from "@/data/jobs";
+import { fetchCompanyProfile } from "@/lib/jobs.functions";
 
 export const Route = createFileRoute("/companies/$companyId")({
-  loader: ({ params }) => {
-    const company = companies.find((c) => c.id === params.companyId);
-    if (!company) throw notFound();
-    return { company, openJobs: jobs.filter((j) => j.companyId === company.id) };
+  loader: async ({ params }) => {
+    const profile = await fetchCompanyProfile({ data: { id: params.companyId } });
+    if (!profile) throw notFound();
+    return profile;
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Company unavailable | EthioJobs Connect" }, { name: "robots", content: "noindex" }],
+        meta: [
+          { title: "Company unavailable | EthioJobs Connect" },
+          { name: "robots", content: "noindex" },
+        ],
       };
     }
     const title = `${loaderData.company.name} — Jobs & Company Profile | EthioJobs Connect`;
@@ -27,6 +30,12 @@ export const Route = createFileRoute("/companies/$companyId")({
     };
   },
   component: CompanyDetail,
+  errorComponent: ({ error }) => (
+    <div role="alert" className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <h1 className="font-display text-2xl font-semibold">Couldn’t load this company</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+    </div>
+  ),
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-4 py-20 text-center">
       <h1 className="font-display text-2xl font-semibold">Company not found</h1>
@@ -38,7 +47,7 @@ export const Route = createFileRoute("/companies/$companyId")({
 });
 
 function CompanyDetail() {
-  const { company, openJobs } = Route.useLoaderData() as { company: Company; openJobs: Job[] };
+  const { company, openJobs } = Route.useLoaderData();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -73,11 +82,9 @@ function CompanyDetail() {
         <p className="mt-5 text-sm text-muted-foreground">{company.about}</p>
       </div>
 
-      <h2 className="mt-10 font-display text-xl font-semibold">
-        Open roles ({openJobs.length})
-      </h2>
+      <h2 className="mt-10 font-display text-xl font-semibold">Open roles ({openJobs.length})</h2>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
-        {openJobs.map((job: Job) => (
+        {openJobs.map((job) => (
           <JobCard key={job.id} job={job} />
         ))}
       </div>
