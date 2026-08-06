@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { MapPin, Clock, BadgeCheck, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { formatSalary, getCompany, type Job } from "@/data/jobs";
+import { formatSalary, type JobWithCompany } from "@/data/jobs";
 
-export function JobCard({ job }: { job: Job }) {
-  const company = getCompany(job.companyId);
+export function JobCard({ job }: { job: JobWithCompany }) {
+  const company = job.company;
 
   return (
     <Link

@@ -11,17 +11,23 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { formatSalary, getCompany, getJob, type Company, type Job } from "@/data/jobs";
+import { formatSalary } from "@/data/jobs";
+import { fetchJobDetail } from "@/lib/jobs.functions";
 
 export const Route = createFileRoute("/jobs/$jobId")({
-  loader: ({ params }) => {
-    const job = getJob(params.jobId);
+  loader: async ({ params }) => {
+    const job = await fetchJobDetail({ data: { id: params.jobId } });
     if (!job) throw notFound();
-    return { job, company: getCompany(job.companyId) };
+    return { job, company: job.company };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Job unavailable | EthioJobs Connect" }, { name: "robots", content: "noindex" }] };
+      return {
+        meta: [
+          { title: "Job unavailable | EthioJobs Connect" },
+          { name: "robots", content: "noindex" },
+        ],
+      };
     }
     const title = `${loaderData.job.title} at ${loaderData.company?.name} | EthioJobs Connect`;
     return {
@@ -34,6 +40,12 @@ export const Route = createFileRoute("/jobs/$jobId")({
     };
   },
   component: JobDetail,
+  errorComponent: ({ error }) => (
+    <div role="alert" className="mx-auto max-w-2xl px-4 py-20 text-center">
+      <h1 className="font-display text-2xl font-semibold">Couldn’t load this job</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+    </div>
+  ),
   notFoundComponent: () => (
     <div className="mx-auto max-w-2xl px-4 py-20 text-center">
       <h1 className="font-display text-2xl font-semibold">This job is no longer listed</h1>
@@ -46,7 +58,7 @@ export const Route = createFileRoute("/jobs/$jobId")({
 });
 
 function JobDetail() {
-  const { job, company } = Route.useLoaderData() as { job: Job; company: Company | undefined };
+  const { job, company } = Route.useLoaderData();
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -65,7 +77,11 @@ function JobDetail() {
                 <h1 className="font-display text-2xl font-semibold">{job.title}</h1>
                 <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
                   {company ? (
-                    <Link to="/companies/$companyId" params={{ companyId: company.id }} className="hover:text-foreground">
+                    <Link
+                      to="/companies/$companyId"
+                      params={{ companyId: company.id }}
+                      className="hover:text-foreground"
+                    >
                       {company.name}
                     </Link>
                   ) : null}
@@ -75,12 +91,36 @@ function JobDetail() {
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Meta icon={<MapPin className="size-4" />} label="Location" value={`${job.city}${job.remote ? " · Remote friendly" : ""}`} />
-              <Meta icon={<Wallet className="size-4" />} label="Salary" value={formatSalary(job.salaryMin, job.salaryMax)} />
-              <Meta icon={<Briefcase className="size-4" />} label="Employment" value={`${job.employmentType} · ${job.experience}`} />
-              <Meta icon={<GraduationCap className="size-4" />} label="Education" value={job.education} />
-              <Meta icon={<CalendarClock className="size-4" />} label="Deadline" value={job.deadline} />
-              <Meta icon={<Users className="size-4" />} label="Applicants" value={`${job.applicants} so far`} />
+              <Meta
+                icon={<MapPin className="size-4" />}
+                label="Location"
+                value={`${job.city}${job.remote ? " · Remote friendly" : ""}`}
+              />
+              <Meta
+                icon={<Wallet className="size-4" />}
+                label="Salary"
+                value={formatSalary(job.salaryMin, job.salaryMax)}
+              />
+              <Meta
+                icon={<Briefcase className="size-4" />}
+                label="Employment"
+                value={`${job.employmentType} · ${job.experience}`}
+              />
+              <Meta
+                icon={<GraduationCap className="size-4" />}
+                label="Education"
+                value={job.education}
+              />
+              <Meta
+                icon={<CalendarClock className="size-4" />}
+                label="Deadline"
+                value={job.deadline}
+              />
+              <Meta
+                icon={<Users className="size-4" />}
+                label="Applicants"
+                value={`${job.applicants} so far`}
+              />
             </div>
           </div>
 
