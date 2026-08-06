@@ -1,5 +1,4 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,8 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { JobCard } from "@/components/job-card";
-import { facetsQuery, jobsQuery } from "@/lib/jobs-queries";
-import type { JobWithCompany } from "@/data/jobs";
+import { categories, cities, jobs } from "@/data/jobs";
 
 type JobSearch = {
   q?: string | undefined;
@@ -27,17 +25,12 @@ const ANY = "any";
 
 export const Route = createFileRoute("/jobs/")({
   validateSearch: (search: Record<string, unknown>): JobSearch => ({
-    q: typeof search["q"] === "string" ? search["q"] : undefined,
-    category: typeof search["category"] === "string" ? search["category"] : undefined,
-    city: typeof search["city"] === "string" ? search["city"] : undefined,
-    type: typeof search["type"] === "string" ? search["type"] : undefined,
-    sort: typeof search["sort"] === "string" ? search["sort"] : undefined,
+    q: typeof search['q'] === "string" ? search['q'] : undefined,
+    category: typeof search['category'] === "string" ? search['category'] : undefined,
+    city: typeof search['city'] === "string" ? search['city'] : undefined,
+    type: typeof search['type'] === "string" ? search['type'] : undefined,
+    sort: typeof search['sort'] === "string" ? search['sort'] : undefined,
   }),
-  loaderDeps: ({ search }) => search,
-  loader: ({ context, deps }) => {
-    context.queryClient.ensureQueryData(jobsQuery(deps));
-    context.queryClient.ensureQueryData(facetsQuery());
-  },
   head: () => ({
     meta: [
       { title: "Browse Jobs in Ethiopia | EthioJobs Connect" },
@@ -54,32 +47,36 @@ export const Route = createFileRoute("/jobs/")({
     ],
   }),
   component: BrowseJobs,
-  errorComponent: ({ error }) => (
-    <div role="alert" className="mx-auto max-w-2xl px-4 py-20 text-center">
-      <h1 className="font-display text-2xl font-semibold">Couldn’t load jobs</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
-    </div>
-  ),
-  notFoundComponent: () => (
-    <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-      <p className="text-sm text-muted-foreground">No jobs found.</p>
-    </div>
-  ),
 });
 
 function BrowseJobs() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/jobs" });
-  const { data: results } = useSuspenseQuery(jobsQuery(search));
-  const { data: facets } = useSuspenseQuery(facetsQuery());
 
   const setParam = (key: keyof JobSearch, value: string | undefined) =>
     navigate({
-      search: (prev: JobSearch) => ({
-        ...prev,
-        [key]: value === ANY || value === "" ? undefined : value,
-      }),
+      search: (prev: JobSearch) => ({ ...prev, [key]: value === ANY || value === "" ? undefined : value }),
     });
+
+  const q = (search.q ?? "").toLowerCase();
+  let results = jobs.filter((job) => {
+    const matchesQ =
+      !q ||
+      job.title.toLowerCase().includes(q) ||
+      job.summary.toLowerCase().includes(q) ||
+      job.skills.some((s) => s.toLowerCase().includes(q));
+    const matchesCategory = !search.category || job.category === search.category;
+    const matchesCity = !search.city || job.city === search.city;
+    const matchesType = !search.type || job.employmentType === search.type;
+    return matchesQ && matchesCategory && matchesCity && matchesType;
+  });
+
+  if (search.sort === "salary") results = [...results].sort((a, b) => b.salaryMax - a.salaryMax);
+  else if (search.sort === "deadline")
+    results = [...results].sort((a, b) => a.deadline.localeCompare(b.deadline));
+  else if (search.sort === "popular")
+    results = [...results].sort((a, b) => b.applicants - a.applicants);
+  else results = [...results].sort((a, b) => a.postedDaysAgo - b.postedDaysAgo);
 
   const activeFilters = [search.category, search.city, search.type].filter(Boolean) as string[];
 
@@ -106,13 +103,13 @@ function BrowseJobs() {
             label="Category"
             value={search.category ?? ANY}
             onChange={(v) => setParam("category", v)}
-            options={facets.categories.map((c) => c.name)}
+            options={categories.map((c) => c.name)}
           />
           <Filter
             label="City"
             value={search.city ?? ANY}
             onChange={(v) => setParam("city", v)}
-            options={facets.cities}
+            options={cities}
           />
           <Filter
             label="Job type"
@@ -157,7 +154,7 @@ function BrowseJobs() {
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        {results.map((job: JobWithCompany) => (
+        {results.map((job) => (
           <JobCard key={job.id} job={job} />
         ))}
       </div>
