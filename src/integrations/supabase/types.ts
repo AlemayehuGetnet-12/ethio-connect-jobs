@@ -14,7 +14,122 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      companies: {
+        Row: {
+          about: string
+          city: string
+          created_at: string
+          employees: string
+          id: string
+          industry: string
+          initials: string
+          name: string
+          verified: boolean
+          website: string
+        }
+        Insert: {
+          about?: string
+          city: string
+          created_at?: string
+          employees?: string
+          id: string
+          industry: string
+          initials?: string
+          name: string
+          verified?: boolean
+          website?: string
+        }
+        Update: {
+          about?: string
+          city?: string
+          created_at?: string
+          employees?: string
+          id?: string
+          industry?: string
+          initials?: string
+          name?: string
+          verified?: boolean
+          website?: string
+        }
+        Relationships: []
+      }
+      jobs: {
+        Row: {
+          applicants: number
+          benefits: string[]
+          category: string
+          city: string
+          company_id: string
+          created_at: string
+          deadline: string
+          description: string
+          education: string
+          employment_type: string
+          experience: string
+          id: string
+          posted_days_ago: number
+          remote: boolean
+          requirements: string[]
+          salary_max: number
+          salary_min: number
+          skills: string[]
+          summary: string
+          title: string
+        }
+        Insert: {
+          applicants?: number
+          benefits?: string[]
+          category: string
+          city: string
+          company_id: string
+          created_at?: string
+          deadline?: string
+          description?: string
+          education?: string
+          employment_type: string
+          experience?: string
+          id: string
+          posted_days_ago?: number
+          remote?: boolean
+          requirements?: string[]
+          salary_max?: number
+          salary_min?: number
+          skills?: string[]
+          summary?: string
+          title: string
+        }
+        Update: {
+          applicants?: number
+          benefits?: string[]
+          category?: string
+          city?: string
+          company_id?: string
+          created_at?: string
+          deadline?: string
+          description?: string
+          education?: string
+          employment_type?: string
+          experience?: string
+          id?: string
+          posted_days_ago?: number
+          remote?: boolean
+          requirements?: string[]
+          salary_max?: number
+          salary_min?: number
+          skills?: string[]
+          summary?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
