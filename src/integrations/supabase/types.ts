@@ -130,6 +130,57 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_path: string | null
+          bio: string
+          city: string
+          created_at: string
+          full_name: string
+          headline: string
+          id: string
+          phone: string
+          resume_name: string | null
+          resume_path: string | null
+          resume_size: number | null
+          resume_updated_at: string | null
+          skills: string[]
+          updated_at: string
+        }
+        Insert: {
+          avatar_path?: string | null
+          bio?: string
+          city?: string
+          created_at?: string
+          full_name?: string
+          headline?: string
+          id: string
+          phone?: string
+          resume_name?: string | null
+          resume_path?: string | null
+          resume_size?: number | null
+          resume_updated_at?: string | null
+          skills?: string[]
+          updated_at?: string
+        }
+        Update: {
+          avatar_path?: string | null
+          bio?: string
+          city?: string
+          created_at?: string
+          full_name?: string
+          headline?: string
+          id?: string
+          phone?: string
+          resume_name?: string | null
+          resume_path?: string | null
+          resume_size?: number | null
+          resume_updated_at?: string | null
+          skills?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
