@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ETHIOPIAN_CITIES } from "@/data/jobs";
+import { cities } from "@/data/jobs";
 
 type ProfileRow = {
   id: string;
@@ -462,7 +462,7 @@ function ProfilePage() {
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
               >
                 <option value="">Select a city</option>
-                {ETHIOPIAN_CITIES.map((city) => (
+                {cities.map((city: string) => (
                   <option key={city} value={city}>
                     {city}
                   </option>
