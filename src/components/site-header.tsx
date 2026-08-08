@@ -40,13 +40,20 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="sm" disabled>
-            Log in
-          </Button>
+          {user ? (
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/profile">My profile</Link>
+            </Button>
+          ) : (
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/auth">Log in</Link>
+            </Button>
+          )}
           <Button size="sm" disabled>
             Post a Job
           </Button>
         </div>
+
 
         <button
           className="inline-flex size-10 items-center justify-center rounded-md text-foreground md:hidden"
