@@ -147,7 +147,7 @@ function BrowseJobs() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate({ search: {} })}
+              onClick={() => navigate({ search: (): JobSearch => ({}) })}
               className="h-7 text-xs"
             >
               Clear all
