@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { Menu, X, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 const nav = [
   { to: "/jobs", label: "Browse Jobs" },
@@ -13,6 +14,7 @@ const nav = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur">
@@ -78,6 +80,13 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
+            <Link
+              to={user ? "/profile" : "/auth"}
+              onClick={() => setOpen(false)}
+              className="rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+            >
+              {user ? "My profile" : "Log in"}
+            </Link>
           </div>
         </div>
       ) : null}
