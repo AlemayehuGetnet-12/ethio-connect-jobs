@@ -51,11 +51,14 @@ export const Route = createFileRoute("/jobs/")({
 
 function BrowseJobs() {
   const search = Route.useSearch();
-  const navigate = useNavigate({ from: "/jobs" });
+  const navigate = useNavigate({ from: "/jobs/" });
 
   const setParam = (key: keyof JobSearch, value: string | undefined) =>
     navigate({
-      search: (prev: JobSearch) => ({ ...prev, [key]: value === ANY || value === "" ? undefined : value }),
+      search: (prev: JobSearch): JobSearch => ({
+        ...prev,
+        [key]: value === ANY || value === "" ? undefined : value,
+      }),
     });
 
   const q = (search.q ?? "").toLowerCase();
